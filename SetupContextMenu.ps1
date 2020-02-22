@@ -1,3 +1,9 @@
+#Requires -RunAsAdministrator
+
+Param(
+    [bool]$uninstall=$false
+)
+
 # Global definitions
 $config = "$env:LocalAppData\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\profiles.json"
 $resourcePath = "$env:LOCALAPPDATA\WindowsTerminalContextIcons\"
@@ -24,6 +30,7 @@ $rawContent = (Get-Content $config -Raw) -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*
 $profiles = (ConvertFrom-Json -InputObject $rawContent).profiles.list
 
 # Clear register
+
 if((Test-Path -Path $contextMenuRegPath)) {
     # If reg has existed
     Remove-Item -Recurse -Force -Path $contextMenuRegPath
@@ -35,6 +42,10 @@ if((Test-Path -Path $contextBGMenuRegPath)) {
 
 if((Test-Path -Path $subMenuRegPath)) {
     Remove-Item -Recurse -Force -Path $subMenuRegPath
+}
+
+if($uninstall) {
+    Exit
 }
 
 # Setup First layer context menu
