@@ -18,11 +18,8 @@ $contextMenuLabel = "Open Windows Terminal here"
 $contextMenuRegPath = "Registry::HKEY_CLASSES_ROOT\Directory\shell\$menuRegID"
 $contextBGMenuRegPath = "Registry::HKEY_CLASSES_ROOT\Directory\background\shell\$menuRegID"
 $subMenuRegRelativePath = "Directory\ContextMenus\$menuRegID"
-$subMenuRegPath = "Registry::HKEY_CLASSES_ROOT\Directory\ContextMenus\$menuRegID\shell\"
-
-# Setup icons
-
-Copy-Item -Path "$PSScriptRoot\icons\*.ico" -Destination $resourcePath
+$subMenuRegRoot = "Registry::HKEY_CLASSES_ROOT\Directory\ContextMenus\$menuRegID"
+$subMenuRegPath = "$subMenuRegRoot\shell\"
 
 # Get Windows terminal profile
 $rawContent = (Get-Content $config -Raw) -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
@@ -42,14 +39,23 @@ if((Test-Path -Path $contextBGMenuRegPath)) {
     Write-Host "Clear reg $contextBGMenuRegPath"
 }
 
-if((Test-Path -Path $subMenuRegPath)) {
-    Remove-Item -Recurse -Force -Path $subMenuRegPath
-    Write-Host "Clear reg $subMenuRegPath"
+if((Test-Path -Path $subMenuRegRoot)) {
+    Remove-Item -Recurse -Force -Path $subMenuRegRoot
+    Write-Host "Clear reg $subMenuRegRoot"
+}
+
+if((Test-Path -Path $resourcePath)) {
+    Remove-Item -Recurse -Force -Path $resourcePath
+    Write-Host "Clear icon content folder $resourcePath"
 }
 
 if($uninstall) {
     Exit
 }
+
+# Setup icons
+New-Item -Path $resourcePath -ItemType Directory
+Copy-Item -Path "$PSScriptRoot\icons\*.ico" -Destination $resourcePath
 
 # Setup First layer context menu
 [void](New-Item -Path $contextMenuRegPath)
