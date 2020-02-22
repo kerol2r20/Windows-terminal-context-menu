@@ -1,4 +1,6 @@
-# Windows-terminal-context-menu
+# 🧾 Windows-terminal-context-menu 
+
+![](https://i.imgur.com/gDG1nJs.png)
 
 Inspire from Windows terminal issue [Add "open Windows terminal here" into right-click context menu #1060](https://github.com/microsoft/terminal/issues/1060). Thanks you all giants ❤
 
