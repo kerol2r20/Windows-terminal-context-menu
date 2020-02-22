@@ -5,7 +5,7 @@ Param(
 # Global definitions
 $config = "$env:LocalAppData\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\profiles.json"
 $resourcePath = "$env:LOCALAPPDATA\WindowsTerminalContextIcons\"
-$resourcePathValue = "%LOCALAPPDATA%\WindowsTerminalContextIcons\"
+$resourcePathReg = "%LOCALAPPDATA%\WindowsTerminalContextIcons\"
 $contextMenuIcoName = "terminal.ico"
 $cmdIcoFileName = "cmd.ico"
 $wslIcoFileName = "linux.ico"
@@ -20,8 +20,11 @@ $contextBGMenuRegPath = "$contextMenuRoot\Background\shell\$menuRegID"
 $subMenuRegPath = "$contextMenuRoot\ContextMenus\$menuRegID"
 $subMenuRegRelativePath = "Directory\ContextMenus\$menuRegID"
 
-# Setup icons
+# Get Windows terminal profile
+$rawContent = (Get-Content $config) -replace '^\s*\/\/.*' | Out-String
+$profiles = (ConvertFrom-Json -InputObject $rawContent).profiles.list
 
+# Setup icons
 if($uninstall) {
   if((Test-Path -Path $resourcePath)) {
       Remove-Item -Recurse -Path $resourcePath
@@ -30,35 +33,27 @@ if($uninstall) {
 }
 else {
   if(-Not (Test-Path -Path $resourcePath)) {
-      New-Item -ItemType directory -Path $resourcePath | Out-Null
+      [void](New-Item -ItemType directory -Path $resourcePath)
       Write-Host "Create path $resourcePath"
   }
-  Copy-Item -Path "$PSScriptRoot\icons\*.ico" -Destination $resourcePath
-  Write-Host "Copy $PSScriptRoot\icons\*.ico -> $resourcePath"
+  [void](Copy-Item -Path "$PSScriptRoot\icons\*.ico" -Destination $resourcePath)
+  Write-Host "Copy icons => $resourcePath"
 }
 
-# Get Windows terminal profile
-$rawContent = (Get-Content $config) -replace '^\s*\/\/.*' | Out-String
-$profiles = (ConvertFrom-Json -InputObject $rawContent).profiles.list
-
 # Clear register
-
 if((Test-Path -Path $contextMenuRegPath)) {
     # If reg has existed
     Remove-Item -Recurse -Force -Path $contextMenuRegPath
-    Write-Host "Clear reg $contextMenuRegPath"
+    Write-Host "Clear $contextMenuRegPath"
 }
-
 if((Test-Path -Path $contextBGMenuRegPath)) {
     Remove-Item -Recurse -Force -Path $contextBGMenuRegPath
-    Write-Host "Clear reg $contextBGMenuRegPath"
+    Write-Host "Clear $contextBGMenuRegPath"
 }
-
 if((Test-Path -Path $subMenuRegPath)) {
     Remove-Item -Recurse -Force -Path $subMenuRegPath
-    Write-Host "Clear reg $subMenuRegPath"
+    Write-Host "Clear $subMenuRegPath"
 }
-
 if($uninstall) {
     Exit
 }
@@ -66,13 +61,13 @@ if($uninstall) {
 # Setup First layer context menu
 [void](New-Item -Force -Path $contextMenuRegPath)
 [void](New-ItemProperty -Path $contextMenuRegPath -Name ExtendedSubCommandsKey -PropertyType String -Value $subMenuRegRelativePath)
-[void](New-ItemProperty -Path $contextMenuRegPath -Name Icon -PropertyType String -Value $resourcePathValue$contextMenuIcoName)
+[void](New-ItemProperty -Path $contextMenuRegPath -Name Icon -PropertyType String -Value $resourcePathReg$contextMenuIcoName)
 [void](New-ItemProperty -Path $contextMenuRegPath -Name MUIVerb -PropertyType String -Value $contextMenuLabel)
 Write-Host "Add top layer menu (shell) => $contextMenuRegPath"
 
 [void](New-Item -Force -Path $contextBGMenuRegPath)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name ExtendedSubCommandsKey -PropertyType String -Value $subMenuRegRelativePath)
-[void](New-ItemProperty -Path $contextBGMenuRegPath -Name Icon -PropertyType String -Value $resourcePathValue$contextMenuIcoName)
+[void](New-ItemProperty -Path $contextBGMenuRegPath -Name Icon -PropertyType String -Value $resourcePathReg$contextMenuIcoName)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name MUIVerb -PropertyType String -Value $contextMenuLabel)
 Write-Host "Add top layer menu (background) => $contextMenuRegPath"
 
@@ -95,19 +90,19 @@ $profiles | ForEach-Object {
         [void](New-ItemProperty -Path $subItemCMDPath -Name "(default)" -PropertyType String -Value "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe -p `"$profileName`" -d %V")
 
         if($commandLine -eq "cmd.exe") {
-            $icoPath = "$resourcePathValue$cmdIcoFileName"
+            $icoPath = "$resourcePathReg$cmdIcoFileName"
         }
         elseif ($commandLine -eq "powershell.exe") {
-            $icoPath = "$resourcePathValue$psIcoFileName"
+            $icoPath = "$resourcePathReg$psIcoFileName"
         }
         elseif ($source -eq "Windows.Terminal.Wsl") {
-            $icoPath = "$resourcePathValue$wslIcoFileName"
+            $icoPath = "$resourcePathReg$wslIcoFileName"
         }
         elseif ($source -eq "Windows.Terminal.PowershellCore") {
-            $icoPath = "$resourcePathValue$psCoreIcoFileName"
+            $icoPath = "$resourcePathReg$psCoreIcoFileName"
         }
         elseif ($source -eq "Windows.Terminal.Azure") {
-            $icoPath = "$resourcePathValue$azureCoreIcoFileName"
+            $icoPath = "$resourcePathReg$azureCoreIcoFileName"
         }
 
         if($icoPath -ne "") {
