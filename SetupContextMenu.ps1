@@ -22,8 +22,7 @@ $subMenuRegRoot = "Registry::HKEY_CLASSES_ROOT\Directory\ContextMenus\$menuRegID
 $subMenuRegPath = "$subMenuRegRoot\shell\"
 
 # Get Windows terminal profile
-$rawContent = (Get-Content $config -Raw) -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
-
+$rawContent = (Get-Content $config) -replace '^\s*\/\/.*' | Out-String
 $profiles = (ConvertFrom-Json -InputObject $rawContent).profiles.list
 
 # Clear register
@@ -54,8 +53,9 @@ if($uninstall) {
 }
 
 # Setup icons
-New-Item -Path $resourcePath -ItemType Directory
-Copy-Item -Path "$PSScriptRoot\icons\*.ico" -Destination $resourcePath
+[void](New-Item -Path $resourcePath -ItemType Directory)
+[void](Copy-Item -Path "$PSScriptRoot\icons\*.ico" -Destination $resourcePath)
+Write-Output "Copy icons => $resourcePath"
 
 # Setup First layer context menu
 [void](New-Item -Path $contextMenuRegPath)
