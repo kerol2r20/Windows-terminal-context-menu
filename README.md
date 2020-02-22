@@ -26,3 +26,6 @@ So I write this script to deal with it.
 
 # Uninstall
 1. Run `SetupContextMenu.ps1 -uninstall:$true`
+
+# Misc
+I'm not sure that icons file are legal or not. If you feel not ok, please tell me. Thanks.
