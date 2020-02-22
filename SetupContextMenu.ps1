@@ -38,8 +38,7 @@ else {
 }
 
 # Get Windows terminal profile
-$rawContent = (Get-Content $config -Raw) -replace '(?m)(?<=^([^"]|"[^"]*")*)//.*' -replace '(?ms)/\*.*?\*/'
-
+$rawContent = (Get-Content $config) -replace '^\s*\/\/.*' | Out-String
 $profiles = (ConvertFrom-Json -InputObject $rawContent).profiles.list
 
 # Clear register
