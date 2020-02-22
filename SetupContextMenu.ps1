@@ -34,14 +34,17 @@ $profiles = (ConvertFrom-Json -InputObject $rawContent).profiles.list
 if((Test-Path -Path $contextMenuRegPath)) {
     # If reg has existed
     Remove-Item -Recurse -Force -Path $contextMenuRegPath
+    Write-Host "Clear reg $contextMenuRegPath"
 }
 
 if((Test-Path -Path $contextBGMenuRegPath)) {
     Remove-Item -Recurse -Force -Path $contextBGMenuRegPath
+    Write-Host "Clear reg $contextBGMenuRegPath"
 }
 
 if((Test-Path -Path $subMenuRegPath)) {
     Remove-Item -Recurse -Force -Path $subMenuRegPath
+    Write-Host "Clear reg $subMenuRegPath"
 }
 
 if($uninstall) {
@@ -53,11 +56,13 @@ if($uninstall) {
 [void](New-ItemProperty -Path $contextMenuRegPath -Name ExtendedSubCommandsKey -PropertyType String -Value $subMenuRegRelativePath)
 [void](New-ItemProperty -Path $contextMenuRegPath -Name Icon -PropertyType String -Value $resourcePath$contextMenuIcoName)
 [void](New-ItemProperty -Path $contextMenuRegPath -Name MUIVerb -PropertyType String -Value $contextMenuLabel)
+Write-Host "Add top layer menu (shell) => $contextMenuRegPath"
 
 [void](New-Item -Path $contextBGMenuRegPath)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name ExtendedSubCommandsKey -PropertyType String -Value $subMenuRegRelativePath)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name Icon -PropertyType String -Value $resourcePath$contextMenuIcoName)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name MUIVerb -PropertyType String -Value $contextMenuLabel)
+Write-Host "Add top layer menu (background) => $contextMenuRegPath"
 
 # Setup each profile item
 $profiles | ForEach-Object {
@@ -97,4 +102,5 @@ $profiles | ForEach-Object {
             [void](New-ItemProperty -Path $subItemRegPath -Name "Icon" -PropertyType String -Value "$resourcePath$icoPath")
         }
     }
+    Write-Host "Add new entry $profileName"
 }
