@@ -1,5 +1,3 @@
-#Requires -RunAsAdministrator
-
 Param(
     [bool]$uninstall=$false
 )
@@ -15,10 +13,10 @@ $psCoreIcoFileName = "powershell-core.ico"
 $azureCoreIcoFileName = "azure.ico"
 $menuRegID = "WindowsTerminal"
 $contextMenuLabel = "Open Windows Terminal here"
-$contextMenuRegPath = "Registry::HKEY_CLASSES_ROOT\Directory\shell\$menuRegID"
-$contextBGMenuRegPath = "Registry::HKEY_CLASSES_ROOT\Directory\background\shell\$menuRegID"
+$contextMenuRegPath = "Registry::HKEY_CURRENT_USER\SOFTWARE\Classes\Directory\shell\$menuRegID"
+$contextBGMenuRegPath = "Registry::HKEY_CURRENT_USER\SOFTWARE\Classes\Directory\Background\shell\$menuRegID"
 $subMenuRegRelativePath = "Directory\ContextMenus\$menuRegID"
-$subMenuRegRoot = "Registry::HKEY_CLASSES_ROOT\Directory\ContextMenus\$menuRegID"
+$subMenuRegRoot = "Registry::HKEY_CURRENT_USER\SOFTWARE\Classes\Directory\ContextMenus\$menuRegID"
 $subMenuRegPath = "$subMenuRegRoot\shell\"
 
 # Get Windows terminal profile
@@ -108,5 +106,5 @@ $profiles | ForEach-Object {
             [void](New-ItemProperty -Path $subItemRegPath -Name "Icon" -PropertyType String -Value "$resourcePath$icoPath")
         }
     }
-    Write-Host "Add new entry $profileName"
+    Write-Host "Add new entry $profileName => $subItemRegPath"
 }
