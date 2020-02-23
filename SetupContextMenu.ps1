@@ -3,7 +3,8 @@ Param(
 )
 
 # Global definitions
-$config = "$env:LocalAppData\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\profiles.json"
+$wtProfilesPath = "$env:LocalAppData\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\profiles.json"
+$customConfigPath = "$PSScriptRoot\config.json"
 $resourcePath = "$env:LOCALAPPDATA\WindowsTerminalContextIcons\"
 $contextMenuIcoName = "terminal.ico"
 $cmdIcoFileName = "cmd.ico"
@@ -20,11 +21,14 @@ $subMenuRegRoot = "Registry::HKEY_CURRENT_USER\SOFTWARE\Classes\Directory\Contex
 $subMenuRegPath = "$subMenuRegRoot\shell\"
 
 # Get Windows terminal profile
-$rawContent = (Get-Content $config) -replace '^\s*\/\/.*' | Out-String
+$rawContent = (Get-Content $wtProfilesPath) -replace '^\s*\/\/.*' | Out-String
 $profiles = (ConvertFrom-Json -InputObject $rawContent).profiles.list
 
-# Clear register
+# Load the custom config
+$rawConfig = (Get-Content $customConfigPath) -replace '^\s*\/\/.*' | Out-String
+$config = (ConvertFrom-Json -InputObject $rawConfig)
 
+# Clear register
 if((Test-Path -Path $contextMenuRegPath)) {
     # If reg has existed
     Remove-Item -Recurse -Force -Path $contextMenuRegPath
@@ -79,14 +83,27 @@ $profiles | ForEach-Object {
     $commandLine = $_.commandline
     $source = $_.source
     $icoPath = ""
+    $guid = $_.guid
+
+    $configEntry = $config.profiles.$guid
 
     if ($isHidden -eq $false) {
         [void](New-Item -Force -Path $subItemRegPath)
         [void](New-Item -Force -Path $subItemCMDPath)
-        [void](New-ItemProperty -Path $subItemRegPath -Name "MUIVerb" -PropertyType String -Value "$profileName")
+
+        if ($configEntry.label) {
+            [void](New-ItemProperty -Path $subItemRegPath -Name "MUIVerb" -PropertyType String -Value $configEntry.label)
+        }
+        else {
+            [void](New-ItemProperty -Path $subItemRegPath -Name "MUIVerb" -PropertyType String -Value "$profileName")
+        }
+        
         [void](New-ItemProperty -Path $subItemCMDPath -Name "(default)" -PropertyType String -Value "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe -p `"$profileName`" -d %V")
 
-        if($commandLine -eq "cmd.exe") {
+        if ($configEntry.icon) {
+            $icoPath = $configEntry.icon
+        }
+        elseif($commandLine -eq "cmd.exe") {
             $icoPath = $cmdIcoFileName
         }
         elseif ($commandLine -eq "powershell.exe") {
