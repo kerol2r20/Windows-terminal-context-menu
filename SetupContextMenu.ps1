@@ -20,14 +20,6 @@ $subMenuRegRelativePath = "Directory\ContextMenus\$menuRegID"
 $subMenuRegRoot = "Registry::HKEY_CURRENT_USER\SOFTWARE\Classes\Directory\ContextMenus\$menuRegID"
 $subMenuRegPath = "$subMenuRegRoot\shell\"
 
-# Get Windows terminal profile
-$rawContent = (Get-Content $wtProfilesPath) -replace '^\s*\/\/.*' | Out-String
-$profiles = (ConvertFrom-Json -InputObject $rawContent).profiles.list
-
-# Load the custom config
-$rawConfig = (Get-Content $customConfigPath) -replace '^\s*\/\/.*' | Out-String
-$config = (ConvertFrom-Json -InputObject $rawConfig)
-
 # Clear register
 if((Test-Path -Path $contextMenuRegPath)) {
     # If reg has existed
@@ -71,6 +63,16 @@ Write-Host "Add top layer menu (shell) => $contextMenuRegPath"
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name Icon -PropertyType String -Value $resourcePath$contextMenuIcoName)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name MUIVerb -PropertyType String -Value $contextMenuLabel)
 Write-Host "Add top layer menu (background) => $contextMenuRegPath"
+
+# Get Windows terminal profile
+$rawContent = (Get-Content $wtProfilesPath) -replace '^\s*\/\/.*' | Out-String
+$profiles = (ConvertFrom-Json -InputObject $rawContent).profiles.list
+
+# Load the custom config
+if((Test-Path -Path $customConfigPath)) {
+    $rawConfig = (Get-Content $customConfigPath) -replace '^\s*\/\/.*' | Out-String
+    $config = (ConvertFrom-Json -InputObject $rawConfig)
+}
 
 # Setup each profile item
 $profiles | ForEach-Object {

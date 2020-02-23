@@ -16,7 +16,6 @@ So I write this script to deal with it.
 
 # Todo
 - [x] Custom icon for profile
-- [ ] Easy uninstall method
 
 # Install
 1. Clone this repo
