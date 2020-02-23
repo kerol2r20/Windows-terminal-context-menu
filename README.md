@@ -21,7 +21,7 @@ So I write this script to deal with it.
 1. Clone this repo
 `git clone https://github.com/kerol2r20/Windows-terminal-context-menu`
 
-2. Run powershell as adminstrator
+2. Run powershell (no need to get admin access right)
 3. Run `SetupContextMenu.ps1` script
 
 # Uninstall
