@@ -14,15 +14,13 @@ So I write this script to deal with it.
 * Auto parse profiles.json to contruct menu
 * With uninstaller
 
-# Todo
-* Custom icon for profile
-
 # Install
 1. Clone this repo
 `git clone https://github.com/kerol2r20/Windows-terminal-context-menu`
-
 2. Run powershell as adminstrator
-3. Run `SetupContextMenu.ps1` script
+3. Run `Set-ExecutionPolicy Unrestricted` once
+4. Run `SetupContextMenu.ps1` script
+5. (Optional) Run `Set-ExecutionPolicy Restricted` to revert step 3
 
 # Uninstall
 1. Run `SetupContextMenu.ps1 -uninstall:$true`
