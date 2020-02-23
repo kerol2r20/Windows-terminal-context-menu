@@ -18,9 +18,9 @@ So I write this script to deal with it.
 1. Clone this repo
 `git clone https://github.com/kerol2r20/Windows-terminal-context-menu`
 2. Run powershell as adminstrator
-3. Run `Set-ExecutionPolicy Unrestricted` once
+3. Run `Set-ExecutionPolicy Unrestricted` once (Choose 'Y' when prompted)
 4. Run `SetupContextMenu.ps1` script
-5. (Optional) Run `Set-ExecutionPolicy Restricted` to revert step 3
+5. (Optional) Run `Set-ExecutionPolicy Restricted` to revert step 3 (Choose 'Y' when prompted)
 
 # Uninstall
 1. Run `SetupContextMenu.ps1 -uninstall:$true`
