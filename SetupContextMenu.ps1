@@ -51,28 +51,34 @@ if($uninstall) {
 [void](Copy-Item -Path "$PSScriptRoot\icons\*.ico" -Destination $resourcePath)
 Write-Output "Copy icons => $resourcePath"
 
+# Load the custom config
+if((Test-Path -Path $customConfigPath)) {
+    $rawConfig = (Get-Content $customConfigPath) -replace '^\s*\/\/.*' | Out-String
+    $config = (ConvertFrom-Json -InputObject $rawConfig)
+}
+
 # Setup First layer context menu
 [void](New-Item -Path $contextMenuRegPath)
 [void](New-ItemProperty -Path $contextMenuRegPath -Name ExtendedSubCommandsKey -PropertyType String -Value $subMenuRegRelativePath)
 [void](New-ItemProperty -Path $contextMenuRegPath -Name Icon -PropertyType String -Value $resourcePath$contextMenuIcoName)
 [void](New-ItemProperty -Path $contextMenuRegPath -Name MUIVerb -PropertyType String -Value $contextMenuLabel)
+if($config.global.extended) {
+    [void](New-ItemProperty -Path $contextMenuRegPath -Name Extended -PropertyType String)
+}
 Write-Host "Add top layer menu (shell) => $contextMenuRegPath"
 
 [void](New-Item -Path $contextBGMenuRegPath)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name ExtendedSubCommandsKey -PropertyType String -Value $subMenuRegRelativePath)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name Icon -PropertyType String -Value $resourcePath$contextMenuIcoName)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name MUIVerb -PropertyType String -Value $contextMenuLabel)
+if($config.global.extended) {
+    [void](New-ItemProperty -Path $contextBGMenuRegPath -Name Extended -PropertyType String)
+}
 Write-Host "Add top layer menu (background) => $contextMenuRegPath"
 
 # Get Windows terminal profile
 $rawContent = (Get-Content $wtProfilesPath) -replace '^\s*\/\/.*' | Out-String
 $profiles = (ConvertFrom-Json -InputObject $rawContent).profiles.list
-
-# Load the custom config
-if((Test-Path -Path $customConfigPath)) {
-    $rawConfig = (Get-Content $customConfigPath) -replace '^\s*\/\/.*' | Out-String
-    $config = (ConvertFrom-Json -InputObject $rawConfig)
-}
 
 # Setup each profile item
 $profiles | ForEach-Object {
