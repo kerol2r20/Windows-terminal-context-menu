@@ -33,6 +33,9 @@ Put any icon file into `icon` folder and modify the `config.json` like the follo
 
 ```json
 {
+    "global": {
+        "extended": false
+    },
     "profiles": {
         "{a5a97cb8-8961-5535-816d-772efe0c6a3f}": {
             "icon": "arch.ico",
@@ -42,9 +45,13 @@ Put any icon file into `icon` folder and modify the `config.json` like the follo
 }
 ```
 
-1. Profile key is the guid of windows terminal profile
-2. `icon` is the icon file name. **You have to put .ico file info icon folder**
-3. `label` is label of the menu item
+**Config reference**
+- global
+  - extended[bool]: if set this to true, context menu will only show up when right click with `shift`
+- profiles
+  - guid[string]: this GUID of your profile defined in `profiles.json`
+    - icon[string]: filename of your ico file, **you must put this file in icon folder**
+    - label[string]: context menu label
 
 # Misc
 I'm not sure that icons file are legal or not. If you feel not ok, please tell me. Thanks.
