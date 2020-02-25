@@ -111,10 +111,10 @@ $profiles | ForEach-Object {
         if ($configEntry.icon) {
             $icoPath = $configEntry.icon
         }
-        elseif($commandLine -eq "cmd.exe") {
+        elseif(($commandLine -match "^cmd\.exe\s?.*")) {
             $icoPath = $cmdIcoFileName
         }
-        elseif ($commandLine -eq "powershell.exe") {
+        elseif (($commandLine -match "^powershell\.exe\s?.*")) {
             $icoPath = $psIcoFileName
         }
         elseif ($source -eq "Windows.Terminal.Wsl") {
