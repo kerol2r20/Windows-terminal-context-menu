@@ -80,11 +80,14 @@ Write-Host "Add top layer menu (background) => $contextMenuRegPath"
 $rawContent = (Get-Content $wtProfilesPath) -replace '^\s*\/\/.*' | Out-String
 $profiles = (ConvertFrom-Json -InputObject $rawContent).profiles.list
 
+$profileSortOrder = 0
 # Setup each profile item
 $profiles | ForEach-Object {
+    $profileSortOrder += 1
+    $profileSortOrderString = "{0:00}" -f $profileSortOrder 
     $profileName = $_.name
     $leagaleName = $profileName -replace '[ \r\n\t]', '-'
-    $subItemRegPath = "$subMenuRegPath$leagaleName"
+    $subItemRegPath = "$subMenuRegPath$profileSortOrderString$leagaleName"
     $subItemCMDPath = "$subItemRegPath\command"
 
     $isHidden = $_.hidden
