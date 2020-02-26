@@ -133,6 +133,8 @@ $profiles | ForEach-Object {
         if($icoPath -ne "") {
             [void](New-ItemProperty -Path $subItemRegPath -Name "Icon" -PropertyType String -Value "$resourcePath$icoPath")
         }
+        Write-Host "Add new entry $profileName => $subItemRegPath"
+    }else{
+        Write-Host "Skip entry $profileName => $subItemRegPath"
     }
-    Write-Host "Add new entry $profileName => $subItemRegPath"
 }
