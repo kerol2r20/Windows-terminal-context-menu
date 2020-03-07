@@ -22,7 +22,10 @@ So I write this script to deal with it.
 `git clone https://github.com/kerol2r20/Windows-terminal-context-menu`
 
 2. Run powershell (no need to get admin access right)
-3. Run `SetupContextMenu.ps1` script
+3. Change the execution policy `Set-ExecutionPolicy RemoteSigned -scope CurrentUser`
+4. Run `SetupContextMenu.ps1` script
+
+⚠️ If you found there are no any item in your context menu, it may cause by the old style profiles.json. You can delete `%LocalAppData%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\profiles.json` and restart Windows terminal, it will generate a new one. Ref to [microsoft/terminal#4556](https://github.com/microsoft/terminal/pull/4556) 
 
 # Uninstall
 1. Run `SetupContextMenu.ps1 -uninstall:$true`
