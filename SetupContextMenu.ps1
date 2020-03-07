@@ -58,7 +58,7 @@ if((Test-Path -Path $customConfigPath)) {
 }
 
 # Setup First layer context menu
-[void](New-Item -Path $contextMenuRegPath)
+[void](New-Item -Force -Path $contextMenuRegPath)
 [void](New-ItemProperty -Path $contextMenuRegPath -Name ExtendedSubCommandsKey -PropertyType String -Value $subMenuRegRelativePath)
 [void](New-ItemProperty -Path $contextMenuRegPath -Name Icon -PropertyType String -Value $resourcePath$contextMenuIcoName)
 [void](New-ItemProperty -Path $contextMenuRegPath -Name MUIVerb -PropertyType String -Value $contextMenuLabel)
@@ -67,7 +67,7 @@ if($config.global.extended) {
 }
 Write-Host "Add top layer menu (shell) => $contextMenuRegPath"
 
-[void](New-Item -Path $contextBGMenuRegPath)
+[void](New-Item -Force -Path $contextBGMenuRegPath)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name ExtendedSubCommandsKey -PropertyType String -Value $subMenuRegRelativePath)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name Icon -PropertyType String -Value $resourcePath$contextMenuIcoName)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name MUIVerb -PropertyType String -Value $contextMenuLabel)
