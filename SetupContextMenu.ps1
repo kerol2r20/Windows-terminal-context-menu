@@ -90,7 +90,6 @@ if($json.profiles.list){
     $profiles = $json.profiles;
 }
 
-
 $profileSortOrder = 0
 
 # Setup each profile item
@@ -124,28 +123,34 @@ $profiles | ForEach-Object {
         
         [void](New-ItemProperty -Path $subItemCMDPath -Name "(default)" -PropertyType String -Value "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe -p `"$profileName`" -d `"%V`"")
 
-
-        if ($_.icon) {
+        
+        if($configEntry.icon){
+            $useFullPath = [System.IO.Path]::IsPathRooted($configEntry.icon);
+            $tmpIconPath = $configEntry.icon;            
+            $icoPath = If (!$useFullPath) {"$resourcePath$tmpIconPath"} Else { "$tmpIconPath" }
+        }
+        elseif ($_.icon) {
             $icoPath = $_.icon
         }
         elseif(($commandLine -match "^cmd\.exe\s?.*")) {
-            $icoPath = "$resourcePath$cmdIcoFileName"
+            $icoPath = "$cmdIcoFileName"
         }
         elseif (($commandLine -match "^powershell\.exe\s?.*")) {
-            $icoPath = "$resourcePath$psIcoFileName"
+            $icoPath = "$psIcoFileName"
         }
         elseif ($source -eq "Windows.Terminal.Wsl") {
-            $icoPath = "$resourcePath$wslIcoFileName"
+            $icoPath = "$wslIcoFileName"
         }
         elseif ($source -eq "Windows.Terminal.PowershellCore") {
-            $icoPath = "$resourcePath$psCoreIcoFileName"
+            $icoPath = "$psCoreIcoFileName"
         }
         elseif ($source -eq "Windows.Terminal.Azure") {
-            $icoPath = "$resourcePath$azureCoreIcoFileName"
+            $icoPath = "$azureCoreIcoFileName"
         }
 
         if($icoPath -ne "") {
-            [void](New-ItemProperty -Path $subItemRegPath -Name "Icon" -PropertyType String -Value "$icoPath")
+            $fixedPath = If ($configEntry.icon -or $_.icon) { "$icoPath" } Else { "$resourcePath$icoPath" }
+            [void](New-ItemProperty -Path $subItemRegPath -Name "Icon" -PropertyType String -Value "$fixedPath")
         }
         Write-Host "Add new entry $profileName => $subItemRegPath"
     }else{
