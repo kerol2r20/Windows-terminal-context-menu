@@ -12,6 +12,7 @@ $wslIcoFileName = "linux.ico"
 $psIcoFileName = "powershell.ico"
 $psCoreIcoFileName = "powershell-core.ico"
 $azureCoreIcoFileName = "azure.ico"
+$unknownIcoFileName = "unknown.ico"
 $menuRegID = "WindowsTerminal"
 $contextMenuLabel = "Open Windows Terminal here"
 $contextMenuRegPath = "Registry::HKEY_CURRENT_USER\SOFTWARE\Classes\Directory\shell\$menuRegID"
@@ -146,6 +147,10 @@ $profiles | ForEach-Object {
         }
         elseif ($source -eq "Windows.Terminal.Azure") {
             $icoPath = "$azureCoreIcoFileName"
+        }else{
+            # Unhandled Icon
+            $icoPath = "$unknownIcoFileName"
+            Write-Host "No icon found, using unknown.ico instead"
         }
 
         if($icoPath -ne "") {
