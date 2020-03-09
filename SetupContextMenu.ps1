@@ -78,14 +78,17 @@ Write-Host "Add top layer menu (background) => $contextMenuRegPath"
 
 # Get Windows terminal profile
 $rawContent = (Get-Content $wtProfilesPath) -replace '^\s*\/\/.*' | Out-String
-$profiles = (ConvertFrom-Json -InputObject $rawContent).profiles.list
+$profiles = (ConvertFrom-Json -InputObject $rawContent).profiles
 
 $profileSortOrder = 0
+
 # Setup each profile item
-$profiles | ForEach-Object {
+$profiles | ForEach-Object {    
     $profileSortOrder += 1
     $profileSortOrderString = "{0:00}" -f $profileSortOrder 
     $profileName = $_.name
+    
+    Write-Host $profileName
     $leagaleName = $profileName -replace '[ \r\n\t]', '-'
     $subItemRegPath = "$subMenuRegPath$profileSortOrderString$leagaleName"
     $subItemCMDPath = "$subItemRegPath\command"
@@ -111,27 +114,28 @@ $profiles | ForEach-Object {
         
         [void](New-ItemProperty -Path $subItemCMDPath -Name "(default)" -PropertyType String -Value "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe -p `"$profileName`" -d `"%V`"")
 
-        if ($configEntry.icon) {
-            $icoPath = $configEntry.icon
+
+        if ($_.icon) {
+            $icoPath = $_.icon
         }
         elseif(($commandLine -match "^cmd\.exe\s?.*")) {
-            $icoPath = $cmdIcoFileName
+            $icoPath = "$resourcePath$cmdIcoFileName"
         }
         elseif (($commandLine -match "^powershell\.exe\s?.*")) {
-            $icoPath = $psIcoFileName
+            $icoPath = "$resourcePath$psIcoFileName"
         }
         elseif ($source -eq "Windows.Terminal.Wsl") {
-            $icoPath = $wslIcoFileName
+            $icoPath = "$resourcePath$wslIcoFileName"
         }
         elseif ($source -eq "Windows.Terminal.PowershellCore") {
-            $icoPath = $psCoreIcoFileName
+            $icoPath = "$resourcePath$psCoreIcoFileName"
         }
         elseif ($source -eq "Windows.Terminal.Azure") {
-            $icoPath = $azureCoreIcoFileName
+            $icoPath = "$resourcePath$azureCoreIcoFileName"
         }
 
         if($icoPath -ne "") {
-            [void](New-ItemProperty -Path $subItemRegPath -Name "Icon" -PropertyType String -Value "$resourcePath$icoPath")
+            [void](New-ItemProperty -Path $subItemRegPath -Name "Icon" -PropertyType String -Value "$icoPath")
         }
         Write-Host "Add new entry $profileName => $subItemRegPath"
     }else{
