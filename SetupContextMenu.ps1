@@ -78,7 +78,18 @@ Write-Host "Add top layer menu (background) => $contextMenuRegPath"
 
 # Get Windows terminal profile
 $rawContent = (Get-Content $wtProfilesPath) -replace '^\s*\/\/.*' | Out-String
-$profiles = (ConvertFrom-Json -InputObject $rawContent).profiles
+$json = (ConvertFrom-Json -InputObject $rawContent);
+
+$profiles = $null;
+
+if($json.profiles.list){
+    Write-Host "Working with the new profiles style"
+    $profiles = $json.profiles.list;
+} else{
+    Write-Host "Working with the old profiles style"
+    $profiles = $json.profiles;
+}
+
 
 $profileSortOrder = 0
 
@@ -87,8 +98,7 @@ $profiles | ForEach-Object {
     $profileSortOrder += 1
     $profileSortOrderString = "{0:00}" -f $profileSortOrder 
     $profileName = $_.name
-    
-    Write-Host $profileName
+        
     $leagaleName = $profileName -replace '[ \r\n\t]', '-'
     $subItemRegPath = "$subMenuRegPath$profileSortOrderString$leagaleName"
     $subItemCMDPath = "$subItemRegPath\command"
