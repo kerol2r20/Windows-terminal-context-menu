@@ -135,7 +135,7 @@ $profiles | ForEach-Object {
         else {
             $label_f = $profileName
         }
-        $labelAdmin_f = "Run as $label_f"
+        $labelAdmin_f = "$label_f (Admin)"
         
         $command_f = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe -p `"$profileName`" -d `"%V`""
         $commandAdmin_f = "powershell -WindowStyle hidden -Command `"Start-Process powershell -WindowStyle hidden -Verb RunAs -ArgumentList `"`"`"`"-Command $env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe -p '$profileName' -d '%V'`"`"`"`""
