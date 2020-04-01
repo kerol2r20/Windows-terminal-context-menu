@@ -21,6 +21,15 @@ $subMenuRegRelativePath = "Directory\ContextMenus\$menuRegID"
 $subMenuRegRoot = "Registry::HKEY_CURRENT_USER\SOFTWARE\Classes\Directory\ContextMenus\$menuRegID"
 $subMenuRegPath = "$subMenuRegRoot\shell\"
 
+function Add-SubmenuReg ($regPath, $label, $iconPath, $command) {
+    $cmdRegPath = "$regPath\command"
+    [void](New-Item -Force -Path $regPath)
+    [void](New-Item -Force -Path $cmdRegPath)
+    [void](New-ItemProperty -Path $regPath -Name "MUIVerb" -PropertyType String -Value $label)
+    [void](New-ItemProperty -Path $cmdRegPath -Name "(default)" -PropertyType String -Value $command)
+    [void](New-ItemProperty -Path $regPath -Name "Icon" -PropertyType String -Value $iconPath)
+}
+
 # Clear register
 if((Test-Path -Path $contextMenuRegPath)) {
     # If reg has existed
@@ -98,32 +107,38 @@ $profiles | ForEach-Object {
     $profileSortOrder += 1
     $profileSortOrderString = "{0:00}" -f $profileSortOrder 
     $profileName = $_.name
+    $guid = $_.guid
+    $configEntry = $config.profiles.$guid
         
     $leagaleName = $profileName -replace '[ \r\n\t]', '-'
     $subItemRegPath = "$subMenuRegPath$profileSortOrderString$leagaleName"
-    $subItemCMDPath = "$subItemRegPath\command"
+    $subItemAdminRegPath = "$subItemRegPath-Admin"
 
     $isHidden = $_.hidden
     $commandLine = $_.commandline
     $source = $_.source
     $icoPath = ""
-    $guid = $_.guid
 
-    $configEntry = $config.profiles.$guid
+    # Final values
+    $iconPath_f = ""
+    $label_f = ""
+    $labelAdmin_f = ""
+    $command_f = ""
+    $commandAdmin_f = ""
 
     if ($isHidden -eq $false) {
-        [void](New-Item -Force -Path $subItemRegPath)
-        [void](New-Item -Force -Path $subItemCMDPath)
 
+        # Decide label
         if ($configEntry.label) {
-            [void](New-ItemProperty -Path $subItemRegPath -Name "MUIVerb" -PropertyType String -Value $configEntry.label)
+            $label_f = $configEntry.label
         }
         else {
-            [void](New-ItemProperty -Path $subItemRegPath -Name "MUIVerb" -PropertyType String -Value "$profileName")
+            $label_f = $profileName
         }
+        $labelAdmin_f = "Run as $label_f"
         
-        [void](New-ItemProperty -Path $subItemCMDPath -Name "(default)" -PropertyType String -Value "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe -p `"$profileName`" -d `"%V`"")
-
+        $command_f = "$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe -p `"$profileName`" -d `"%V`""
+        $commandAdmin_f = "powershell -WindowStyle hidden -Command `"Start-Process powershell -WindowStyle hidden -Verb RunAs -ArgumentList `"`"`"`"-Command $env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe -p '$profileName' -d '%V'`"`"`"`""
         
         if($configEntry.icon){
             $useFullPath = [System.IO.Path]::IsPathRooted($configEntry.icon);
@@ -154,10 +169,16 @@ $profiles | ForEach-Object {
         }
 
         if($icoPath -ne "") {
-            $fixedPath = If ($configEntry.icon -or $_.icon) { "$icoPath" } Else { "$resourcePath$icoPath" }
-            [void](New-ItemProperty -Path $subItemRegPath -Name "Icon" -PropertyType String -Value "$fixedPath")
+            $iconPath_f = If ($configEntry.icon -or $_.icon) { "$icoPath" } Else { "$resourcePath$icoPath" }
         }
+
         Write-Host "Add new entry $profileName => $subItemRegPath"
+
+        Add-SubmenuReg -regPath:$subItemRegPath -label:$label_f -iconPath:$iconPath_f -command:$command_f
+
+        if ($configEntry.showRunAs) {
+            Add-SubmenuReg -regPath:$subItemAdminRegPath -label:$labelAdmin_f -iconPath:$iconPath_f -command:$commandAdmin_f
+        }
     }else{
         Write-Host "Skip entry $profileName => $subItemRegPath"
     }

@@ -43,6 +43,9 @@ Put any icon file into `icon` folder and modify the `config.json` like the follo
         "{a5a97cb8-8961-5535-816d-772efe0c6a3f}": {
             "icon": "arch.ico",
             "label": "Arch Linux"
+        },
+        "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}": {
+            "showRunAs": true
         }
     }
 }
@@ -55,6 +58,7 @@ Put any icon file into `icon` folder and modify the `config.json` like the follo
   - guid[string]: this GUID of your profile defined in `profiles.json`
     - icon[string]: filename of your ico file, **you must put this file in icon folder**
     - label[string]: context menu label
+    - showRunAs[bool]: add `run as administrator` item for this profile
 
 # Misc
 I'm not sure that icons file are legal or not. If you feel it is not ok, please tell me. Thanks.
