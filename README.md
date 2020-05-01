@@ -11,7 +11,7 @@ So I wrote this script to deal with it.
 
 # Feature
 * Two layers of context menu
-* Auto parse profiles.json to contruct menu
+* Auto parse settings.json to contruct menu
 * With uninstaller
 
 # Todo
@@ -31,7 +31,7 @@ So I wrote this script to deal with it.
 1. Run `SetupContextMenu.ps1 -uninstall:$true`
 
 # Config
-This script will parse the `profiles.json` file to generate menu items. However you can customize it.  
+This script will parse the `settings.json` file to generate menu items. However you can customize it.  
 Put any icon file into `icon` folder and modify the `config.json` like the following.
 
 ```json
@@ -55,7 +55,7 @@ Put any icon file into `icon` folder and modify the `config.json` like the follo
 - global
   - extended[bool]: if set this to true, context menu will only show up when right click with `shift`
 - profiles
-  - guid[string]: this GUID of your profile defined in `profiles.json`
+  - guid[string]: this GUID of your profile defined in `settings.json`
     - icon[string]: filename of your ico file, **you must put this file in icon folder**
     - label[string]: context menu label
     - showRunAs[bool]: add `run as administrator` item for this profile
