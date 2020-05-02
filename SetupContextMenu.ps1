@@ -114,7 +114,11 @@ $profiles | ForEach-Object {
     $subItemRegPath = "$subMenuRegPath$profileSortOrderString$leagaleName"
     $subItemAdminRegPath = "$subItemRegPath-Admin"
 
-    $isHidden = $_.hidden
+    if ($configEntry.hidden -eq $null) {
+        $isHidden = $_.hidden
+    } else {
+        $isHidden = $configEntry.hidden
+    }
     $commandLine = $_.commandline
     $source = $_.source
     $icoPath = ""

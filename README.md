@@ -46,6 +46,9 @@ Put any icon file into `icon` folder and modify the `config.json` like the follo
         },
         "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}": {
             "showRunAs": true
+        },
+        "{b453ae62-4e3d-5e58-b989-0a998ec441b8}": {
+            "hidden": true
         }
     }
 }
@@ -56,6 +59,7 @@ Put any icon file into `icon` folder and modify the `config.json` like the follo
   - extended[bool]: if set this to true, context menu will only show up when right click with `shift`
 - profiles
   - guid[string]: this GUID of your profile defined in `settings.json`
+    - hidden[bool]: overwrites the visibility of the profile, if defined
     - icon[string]: filename of your ico file, **you must put this file in icon folder**
     - label[string]: context menu label
     - showRunAs[bool]: add `run as administrator` item for this profile
