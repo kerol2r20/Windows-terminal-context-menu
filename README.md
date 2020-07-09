@@ -32,6 +32,7 @@ So I wrote this script to deal with it.
 
 # Config
 This script will parse the `settings.json` file to generate menu items. However you can customize it.  
+You can also specify a custom path for the JSON via a `customJsonPath` entry.  
 Put any icon file into `icon` folder and modify the `config.json` like the following.
 
 ```json
