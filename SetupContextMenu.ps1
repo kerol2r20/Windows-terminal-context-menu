@@ -1,9 +1,10 @@
 Param(
-    [bool]$uninstall=$false
+    [bool]$uninstall = $false
 )
 
 # Global definitions
 $wtProfilesPath = "$env:LocalAppData\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
+$wtpProfilesPath = "$env:LocalAppData\Packages\Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe\LocalState\settings.json"
 $customConfigPath = "$PSScriptRoot\config.json"
 $resourcePath = "$env:LOCALAPPDATA\WindowsTerminalContextIcons\"
 $contextMenuIcoName = "terminal.ico"
@@ -31,28 +32,28 @@ function Add-SubmenuReg ($regPath, $label, $iconPath, $command) {
 }
 
 # Clear register
-if((Test-Path -Path $contextMenuRegPath)) {
+if ((Test-Path -Path $contextMenuRegPath)) {
     # If reg has existed
     Remove-Item -Recurse -Force -Path $contextMenuRegPath
     Write-Host "Clear reg $contextMenuRegPath"
 }
 
-if((Test-Path -Path $contextBGMenuRegPath)) {
+if ((Test-Path -Path $contextBGMenuRegPath)) {
     Remove-Item -Recurse -Force -Path $contextBGMenuRegPath
     Write-Host "Clear reg $contextBGMenuRegPath"
 }
 
-if((Test-Path -Path $subMenuRegRoot)) {
+if ((Test-Path -Path $subMenuRegRoot)) {
     Remove-Item -Recurse -Force -Path $subMenuRegRoot
     Write-Host "Clear reg $subMenuRegRoot"
 }
 
-if((Test-Path -Path $resourcePath)) {
+if ((Test-Path -Path $resourcePath)) {
     Remove-Item -Recurse -Force -Path $resourcePath
     Write-Host "Clear icon content folder $resourcePath"
 }
 
-if($uninstall) {
+if ($uninstall) {
     Exit
 }
 
@@ -62,7 +63,7 @@ if($uninstall) {
 Write-Output "Copy icons => $resourcePath"
 
 # Load the custom config
-if((Test-Path -Path $customConfigPath)) {
+if ((Test-Path -Path $customConfigPath)) {
     $rawConfig = (Get-Content $customConfigPath) -replace '^\s*\/\/.*' | Out-String
     $config = (ConvertFrom-Json -InputObject $rawConfig)
 }
@@ -72,7 +73,8 @@ if((Test-Path -Path $customConfigPath)) {
 [void](New-ItemProperty -Path $contextMenuRegPath -Name ExtendedSubCommandsKey -PropertyType String -Value $subMenuRegRelativePath)
 [void](New-ItemProperty -Path $contextMenuRegPath -Name Icon -PropertyType String -Value $resourcePath$contextMenuIcoName)
 [void](New-ItemProperty -Path $contextMenuRegPath -Name MUIVerb -PropertyType String -Value $contextMenuLabel)
-if($config.global.extended) {
+
+if ($config.global.extended) {
     [void](New-ItemProperty -Path $contextMenuRegPath -Name Extended -PropertyType String)
 }
 Write-Host "Add top layer menu (shell) => $contextMenuRegPath"
@@ -81,21 +83,47 @@ Write-Host "Add top layer menu (shell) => $contextMenuRegPath"
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name ExtendedSubCommandsKey -PropertyType String -Value $subMenuRegRelativePath)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name Icon -PropertyType String -Value $resourcePath$contextMenuIcoName)
 [void](New-ItemProperty -Path $contextBGMenuRegPath -Name MUIVerb -PropertyType String -Value $contextMenuLabel)
-if($config.global.extended) {
+
+# Allow specifying a Custom Path for the config
+$currentDefault = $null;
+if ($config.global.customJsonPath) {
+    $currentDefault = $config.global.customJsonPath;
+}
+# Checking if we have to show it in Extended menu
+if ($config.global.extended) {
     [void](New-ItemProperty -Path $contextBGMenuRegPath -Name Extended -PropertyType String)
 }
 Write-Host "Add top layer menu (background) => $contextMenuRegPath"
 
-# Get Windows terminal profile
-$rawContent = (Get-Content $wtProfilesPath) -replace '^\s*\/\/.*' | Out-String
-$json = (ConvertFrom-Json -InputObject $rawContent);
+# Get Custom Config, Windows Terminal Preview Config, or normal config in that order
+if ($currentDefault) {
+    Write-Output "Custom Path to JSON is $currentDefault, using that..."
+}
+if (Test-Path $wtpProfilesPath -PathType leaf) {
+    $currentDefault = $wtpProfilesPath;
+    Write-Output "Windows Terminal Preview is installed, using that..."
+}
+elseif (Test-Path $wtProfilesPath -PathType leaf) {
+    $currentDefault = $wtpProfilesPath;
+}
+
+# Check if it exists or not
+if ($currentDefault) {
+    $rawContent = (Get-Content $currentDefault) -replace '^\s*\/\/.*' | Out-String
+    $json = (ConvertFrom-Json -InputObject $rawContent);
+}
+else {
+    Write-Error "No Profiles found, please ensure Windows Terminal is Installed or specify a custom Path in $customConfigPath" -ErrorAction:Stop
+}
+
 
 $profiles = $null;
 
-if($json.profiles.list){
+if ($json.profiles.list) {
     Write-Host "Working with the new profiles style"
     $profiles = $json.profiles.list;
-} else{
+}
+else {
     Write-Host "Working with the old profiles style"
     $profiles = $json.profiles;
 }
@@ -116,7 +144,8 @@ $profiles | ForEach-Object {
 
     if ($configEntry.hidden -eq $null) {
         $isHidden = $_.hidden
-    } else {
+    }
+    else {
         $isHidden = $configEntry.hidden
     }
     $commandLine = $_.commandline
@@ -144,15 +173,15 @@ $profiles | ForEach-Object {
         $command_f = "`"$env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe`" -p `"$profileName`" -d `"%V\.`""
         $commandAdmin_f = "powershell -WindowStyle hidden -Command `"Start-Process powershell -WindowStyle hidden -Verb RunAs -ArgumentList `"`"`"`"-Command $env:LOCALAPPDATA\Microsoft\WindowsApps\wt.exe -p '$profileName' -d '%V\.'`"`"`"`""
         
-        if($configEntry.icon){
+        if ($configEntry.icon) {
             $useFullPath = [System.IO.Path]::IsPathRooted($configEntry.icon);
             $tmpIconPath = $configEntry.icon;            
-            $icoPath = If (!$useFullPath) {"$resourcePath$tmpIconPath"} Else { "$tmpIconPath" }
+            $icoPath = If (!$useFullPath) { "$resourcePath$tmpIconPath" } Else { "$tmpIconPath" }
         }
         elseif ($_.icon) {
             $icoPath = $_.icon
         }
-        elseif(($commandLine -match "^cmd\.exe\s?.*")) {
+        elseif (($commandLine -match "^cmd\.exe\s?.*")) {
             $icoPath = "$cmdIcoFileName"
         }
         elseif (($commandLine -match "^powershell\.exe\s?.*")) {
@@ -166,13 +195,14 @@ $profiles | ForEach-Object {
         }
         elseif ($source -eq "Windows.Terminal.Azure") {
             $icoPath = "$azureCoreIcoFileName"
-        }else{
+        }
+        else {
             # Unhandled Icon
             $icoPath = "$unknownIcoFileName"
             Write-Host "No icon found, using unknown.ico instead"
         }
 
-        if($icoPath -ne "") {
+        if ($icoPath -ne "") {
             $iconPath_f = If ($configEntry.icon -or $_.icon) { "$icoPath" } Else { "$resourcePath$icoPath" }
         }
 
@@ -183,7 +213,8 @@ $profiles | ForEach-Object {
         if ($configEntry.showRunAs) {
             Add-SubmenuReg -regPath:$subItemAdminRegPath -label:$labelAdmin_f -iconPath:$iconPath_f -command:$commandAdmin_f
         }
-    }else{
+    }
+    else {
         Write-Host "Skip entry $profileName => $subItemRegPath"
     }
 }
