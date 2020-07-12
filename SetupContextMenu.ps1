@@ -63,7 +63,7 @@ Write-Output "Copy icons => $resourcePath"
 
 # Load the custom config
 if((Test-Path -Path $customConfigPath)) {
-    $rawConfig = (Get-Content $customConfigPath) -replace '^\s*\/\/.*' | Out-String
+    $rawConfig = (Get-Content $customConfigPath -Encoding UTF8) -replace '^\s*\/\/.*' | Out-String
     $config = (ConvertFrom-Json -InputObject $rawConfig)
 }
 
@@ -87,7 +87,7 @@ if($config.global.extended) {
 Write-Host "Add top layer menu (background) => $contextMenuRegPath"
 
 # Get Windows terminal profile
-$rawContent = (Get-Content $wtProfilesPath) -replace '^\s*\/\/.*' | Out-String
+$rawContent = (Get-Content $wtProfilesPath -Encoding UTF8) -replace '^\s*\/\/.*' | Out-String
 $json = (ConvertFrom-Json -InputObject $rawContent);
 
 $profiles = $null;
