@@ -9,9 +9,11 @@ $resourcePath = "$env:LOCALAPPDATA\WindowsTerminalContextIcons\"
 $contextMenuIcoName = "terminal.ico"
 $cmdIcoFileName = "cmd.ico"
 $wslIcoFileName = "linux.ico"
+$ubuntuIcoFileName = "ubuntu.ico"
 $psIcoFileName = "powershell.ico"
 $psCoreIcoFileName = "powershell-core.ico"
 $azureCoreIcoFileName = "azure.ico"
+$gitIcoFileName = "git-bash.ico"
 $unknownIcoFileName = "unknown.ico"
 $menuRegID = "WindowsTerminal"
 $contextMenuLabel = "Open Windows Terminal here"
@@ -161,12 +163,25 @@ $profiles | ForEach-Object {
         elseif ($source -eq "Windows.Terminal.Wsl") {
             $icoPath = "$wslIcoFileName"
         }
+        elseif ($source -eq "CanonicalGroupLimited.Ubuntu_79rhkp1fndgsc") {
+            $icoPath = "$ubuntuIcoFileName"
+        }
         elseif ($source -eq "Windows.Terminal.PowershellCore") {
             $icoPath = "$psCoreIcoFileName"
         }
         elseif ($source -eq "Windows.Terminal.Azure") {
             $icoPath = "$azureCoreIcoFileName"
-        }else{
+        }
+        elseif ($source -eq "Git") {
+            $icoPath = "$gitIcoFileName"
+        }
+        elseif ($profilename -eq "Developer Command Prompt for VS 2022") {
+            $icoPath = "$cmdIcoFileName"
+        }
+        elseif ($profilename -eq "Developer PowerShell for VS 2022") {
+            $icoPath = "$psIcoFileName"
+        }        
+        else{
             # Unhandled Icon
             $icoPath = "$unknownIcoFileName"
             Write-Host "No icon found, using unknown.ico instead"
